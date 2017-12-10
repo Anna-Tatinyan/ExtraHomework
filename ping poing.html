@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <style>
+        #canvas {
+            position: absolute;
+            margin: auto;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+
+
+        }
+    </style>
+    <canvas id="canvas" width="1000" height="600">
+    </canvas>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const context = canvas.getContext("2d");
+
+
+        const backgroundImg = new Image();
+        backgroundImg.src = "https://cdn-images-1.medium.com/max/1920/1*ZED2929QyMdPiBqJ-aoN1A.jpeg";
+
+        const datagame = {
+            rect1: {
+                x: 0,
+                y: 0,
+                width: 10,
+                height: 160,
+                color: 'blue',
+                y1Delta: 10,
+
+                score: 0
+            },
+
+            rect2: {
+
+                width: 10,
+                x: canvas.width - 10,
+                y: 0,
+                height: 160,
+                color: 'yellow',
+                y2Delta: 10,
+                score: 0
+            },
+
+
+            point: {
+                x: 100,
+                y: 200,
+                r: 10,
+                c1: "red",
+                xDelta: 5,
+                yDelta: 5,
+                score: 0
+
+
+            },
+
+        };
+        let start = false;
+        const draw = function() {
+
+            context.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+            if (start) {
+                const drawCircle = function(x, y, r) {
+
+                    context.fillStyle = point.c1;
+                    context.strokeStyle = point.c1;
+                    context.beginPath();
+                    context.arc(x, y, r, 0, 2 * Math.PI, false);
+                    context.fill();
+                    context.stroke();
+
+
+                };
+                const point = datagame.point;
+                const rect1 = datagame.rect1;
+                const rect2 = datagame.rect2;
+
+                context.fillStyle = rect1.color;
+                context.fillRect(rect1.x, rect1.y, rect1.width, rect1.height);
+                context.fillStyle = rect2.color;
+                context.fillRect(rect2.x, rect2.y, rect2.width, rect2.height);
+                drawCircle(point.x, point.y, point.r);
+                context.fillStyle = "blue";
+                context.fillText(rect1.score, canvas.width/2-100, 50);
+                context.fillStyle = "yellow";
+                context.fillText(rect2.score, canvas.width/2+100, 50);
+                
+
+
+            } else {
+                context.font = "60px Arial";
+                context.fillStyle = "black";
+                context.fillText("Press Space to play the game", 140, 320);
+                
+            }
+        };
+        const collision = function() {
+
+
+            const point = datagame.point;
+            const rect1 = datagame.rect1;
+            const rect2 = datagame.rect2;
+
+            if (rect1.x+rect1.width === point.x - point.r && rect1.y <= point.y && rect1.y+rect1.height >= point.y - point.r) {
+                point.xDelta = -point.xDelta;
+            }
+
+            if (rect2.x === point.x + point.r && rect2.y <= point.y && rect2.y+rect2.height >= point.y - point.r) {
+                point.xDelta = -point.xDelta;;
+            }
+
+        };
+
+
+
+
+        const upKey = 38;
+        const downKey = 40;
+        const down2Key = 83;
+        const up2Key = 87;
+        const space = 32;
+
+        addEventListener('keydown', function(event) {
+
+            const point = datagame.point;
+            const rect1 = datagame.rect1;
+            const rect2 = datagame.rect2;
+
+            if (event.keyCode === space) {
+                start = true;
+            }
+            if (start)
+
+                if (event.keyCode === upKey) {
+                    rect1.y = rect1.y - rect1.y1Delta;
+                    if (rect1.y <= 0) {
+                        rect1.y = rect1.y + rect1.y1Delta;
+                    }
+
+                }
+
+
+            else if (event.keyCode === downKey) {
+                rect1.y = rect1.y + rect1.y1Delta;
+                if (rect1.y >= canvas.height - rect1.height) {
+                    rect1.y = rect1.y - rect1.y1Delta;
+                }
+
+            }
+
+
+            if (event.keyCode === up2Key) {
+                rect2.y = rect2.y - rect2.y2Delta;
+                if (rect2.y <= 0) {
+                    rect2.y = rect2.y + rect2.y2Delta;
+                }
+
+            } else if (event.keyCode === down2Key) {
+                rect2.y = rect2.y + rect2.y2Delta;
+                if (rect2.y >= canvas.height - rect2.height) {
+                    rect2.y = rect2.y - rect2.y2Delta;
+                }
+
+            }
+
+        }, false);
+
+
+
+
+        const update = function() {
+            if (start) {
+                const point = datagame.point;
+                const rect1 = datagame.rect1;
+                const rect2 = datagame.rect2;
+                if (point.y >= canvas.height - point.r) {
+
+                    
+                    point.yDelta = -5;
+
+                } else if (point.y <= point.r) {
+
+                    point.yDelta = 5;
+
+                }
+
+                point.y = point.y + point.yDelta;
+
+                if (point.x >= canvas.width - point.r) {
+
+                    point.x = rect1.x + rect1.width + point.r;
+                    point.y = rect1.y + (rect1.height / 2);
+                    rect1.score ++;
+
+                } else if (point.x <= point.r) {
+
+
+                    point.x = rect2.x - point.r;
+                    point.y = rect2.y + (rect2.height / 2);
+                    rect2.score ++;
+
+                }
+                point.x = point.x + point.xDelta;
+                collision();
+            }
+
+        };
+
+        const loop = function() {
+
+            draw();
+            update();
+
+            requestAnimationFrame(loop);
+        };
+        loop();
+        collision();
+    </script>
+</body>
+
+</html>
